@@ -1,0 +1,12 @@
+tensorflow
+numpy
+flask
+Flask-WTF
+Flask-SQLAlchemy
+Flask-Login
+email-validator
+psycopg2-binary
+werkzeug
+matplotlib
+PySide6
+jupyter

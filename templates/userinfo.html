@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация о пользователе</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="nav">
+        <a href="{{ url_for('dashboard') }}">Главная</a>
+        <a href="{{ url_for('analytics') }}">Аналитика</a>
+        <a href="{{ url_for('logout') }}">Выйти</a>
+    </nav>
+    <main class="container">
+        <h1>Профиль</h1>
+        <div class="card">
+            <p><strong>Имя:</strong> {{ user.first_name }}</p>
+            <p><strong>Фамилия:</strong> {{ user.last_name }}</p>
+            <p><strong>Логин:</strong> {{ user.username }}</p>
+            <p><strong>Роль:</strong> {{ user.role }}</p>
+        </div>
+    </main>
+</body>
+</html>

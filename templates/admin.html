@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Администрирование</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="nav">
+        <a href="{{ url_for('dashboard') }}">Главная</a>
+        <a href="{{ url_for('logout') }}">Выйти</a>
+    </nav>
+    <main class="container">
+        <h1>Создание пользователя</h1>
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="POST" action="{{ url_for('admin_page') }}" class="form">
+            {{ form.hidden_tag() }}
+            <div class="field">
+                <label>Имя</label>
+                {{ form.first_name(class="input") }}
+            </div>
+            <div class="field">
+                <label>Фамилия</label>
+                {{ form.last_name(class="input") }}
+            </div>
+            <div class="field">
+                <label>Логин</label>
+                {{ form.username(class="input") }}
+            </div>
+            <div class="field">
+                <label>Пароль</label>
+                {{ form.password(class="input") }}
+            </div>
+            <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+        </form>
+    </main>
+</body>
+</html>

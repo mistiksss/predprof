@@ -1,0 +1,154 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    margin: 0;
+    background: #f5f5f5;
+    color: #333;
+}
+
+.nav {
+    background: #2c3e50;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav a {
+    color: #ecf0f1;
+    text-decoration: none;
+}
+
+.nav a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.auth-box {
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-box h1 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.35rem;
+    color: #2c3e50;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.field label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.input {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
+}
+
+.btn {
+    padding: 0.65rem 1.25rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.card {
+    background: #fff;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 1.15rem;
+    color: #2c3e50;
+}
+
+.result-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #ecf0f1;
+    border-radius: 6px;
+    min-height: 2rem;
+}
+
+.error {
+    color: #c0392b;
+}
+
+.chart-wrap {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+}
+
+.chart-wrap h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.chart-wrap canvas {
+    max-height: 350px;
+}
+
+.hint {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-bottom: 1rem;
+}

@@ -1,0 +1,9 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+uploads/
+*.h5
+model.weights.h5

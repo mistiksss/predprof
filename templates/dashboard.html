@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рабочий стол</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="nav">
+        <a href="{{ url_for('userinfo') }}">Профиль</a>
+        <a href="{{ url_for('analytics') }}">Аналитика</a>
+        <a href="{{ url_for('logout') }}">Выйти</a>
+    </nav>
+    <main class="container">
+        <h1>Классификация радиосигналов</h1>
+        <div class="card">
+            <h2>Загрузка тестового набора</h2>
+            <form id="uploadForm" class="form">
+                <div class="field">
+                    <label>Тестовый набор данных (файл .npz с массивами test_x, test_y)</label>
+                    <input type="file" name="file" id="testFile" accept=".npz" class="input">
+                </div>
+                <button type="submit" class="btn btn-primary">Загрузить и оценить</button>
+            </form>
+            <div id="uploadResult" class="result-box"></div>
+        </div>
+        <div class="card">
+            <h2>Предсказание по одному сигналу</h2>
+            <form id="predictForm" class="form">
+                <div class="field">
+                    <label>Сигнал (массив чисел через запятую)</label>
+                    <input type="text" name="signal" id="signalInput" placeholder="0.1, -0.2, 0.3, ..." class="input">
+                </div>
+                <button type="submit" class="btn btn-primary">Классифицировать</button>
+            </form>
+            <div id="predictResult" class="result-box"></div>
+        </div>
+    </main>
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            var res = document.getElementById("uploadResult");
+            res.textContent = "Загрузка...";
+            var fd = new FormData();
+            var fileInput = document.getElementById("testFile");
+            if (!fileInput.files.length) {
+                res.innerHTML = "<span class='error'>Выберите файл</span>";
+                return;
+            }
+            fd.append("file", fileInput.files[0]);
+            fetch("{{ url_for('api_upload_test') }}", {
+                method: "POST",
+                body: fd,
+                credentials: "same-origin"
+            }).then(function(r) {
+                return r.json().then(function(data) {
+                    if (!r.ok) {
+                        var msg = data && data.error ? data.error : "Ошибка " + r.status;
+                        res.innerHTML = "<span class='error'>" + msg + "</span>";
+                        return;
+                    }
+                    if (data.error) {
+                        res.innerHTML = "<span class='error'>" + data.error + "</span>";
+                        return;
+                    }
+                    if (data.per_record) window.sessionStorage.setItem("testPerRecord", JSON.stringify(data.per_record));
+                    res.innerHTML = "<p><strong>Точность на тесте:</strong> " + (data.accuracy * 100).toFixed(2) + "%</p>" +
+                        "<p><strong>Потери:</strong> " + data.loss.toFixed(4) + "</p>" +
+                        "<p>Записей: " + data.total + "</p><p><a href=\"{{ url_for('analytics') }}\">Перейти к аналитике</a> для просмотра диаграммы по записям.</p>";
+                });
+            }).catch(function(err) {
+                res.innerHTML = "<span class='error'>Ошибка запроса. Проверьте консоль сервера (терминал).</span>";
+            });
+        });
+        document.getElementById("predictForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            var res = document.getElementById("predictResult");
+            var raw = document.getElementById("signalInput").value.trim();
+            if (!raw) {
+                res.innerHTML = "<span class='error'>Введите числа</span>";
+                return;
+            }
+            var arr = raw.split(",").map(function(s) { return parseFloat(s.trim()); });
+            if (arr.some(function(x) { return isNaN(x); })) {
+                res.innerHTML = "<span class='error'>Неверный формат чисел</span>";
+                return;
+            }
+            res.textContent = "Обработка...";
+            fetch("{{ url_for('api_predict') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ signal: arr }),
+                credentials: "same-origin"
+            }).then(function(r) { return r.json(); }).then(function(data) {
+                if (data.error) {
+                    res.innerHTML = "<span class='error'>" + data.error + "</span>";
+                    return;
+                }
+                res.innerHTML = "<p><strong>Класс (цивилизация):</strong> " + data.class + " (" + data.label + ")</p>";
+            }).catch(function() {
+                res.innerHTML = "<span class='error'>Ошибка запроса</span>";
+            });
+        });
+    </script>
+</body>
+</html>
