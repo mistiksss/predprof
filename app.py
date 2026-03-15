@@ -1,7 +1,5 @@
 import json
 import os
-import zipfile
-import tempfile
 import numpy as np
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
@@ -236,25 +234,13 @@ def api_upload_test():
     f = request.files["file"]
     if f.filename == "":
         return jsonify({"error": "Файл не выбран"}), 400
+    if not (f.filename or "").lower().endswith(".npz"):
+        return jsonify({"error": "Нужен файл .npz"}), 400
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-    path = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(f.filename or "upload"))
+    path = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(f.filename or "upload.npz"))
     f.save(path)
-    npz_path = path
     try:
-        try:
-            data = np.load(path, allow_pickle=True)
-        except (zipfile.BadZipFile, OSError):
-            try:
-                with zipfile.ZipFile(path, "r") as z:
-                    names = [n for n in z.namelist() if n.lower().endswith(".npz")]
-                    if not names:
-                        raise ValueError("В архиве не найден файл .npz")
-                    npz_path = os.path.join(app.config["UPLOAD_FOLDER"], os.path.basename(names[0]) or "extracted.npz")
-                    with open(npz_path, "wb") as out:
-                        out.write(z.read(names[0]))
-                data = np.load(npz_path, allow_pickle=True)
-            except zipfile.BadZipFile:
-                raise ValueError("Не удалось прочитать файл. Убедитесь, что это корректный .npz с массивами test_x и test_y (файл повреждён или не тот формат).")
+        data = np.load(path, allow_pickle=True)
         if "test_x" not in data or "test_y" not in data:
             raise ValueError("В файле .npz должны быть массивы test_x и test_y")
         test_x = data["test_x"]
@@ -281,12 +267,6 @@ def api_upload_test():
         correct = (pred_classes == test_y_fixed).astype(int).tolist()
         accuracy = float(np.mean(correct))
         loss = float(np.mean(-np.log(np.max(preds, axis=1) + 1e-8)))
-        for p in (path, npz_path):
-            if p != path and os.path.exists(p):
-                try:
-                    os.remove(p)
-                except Exception:
-                    pass
         if os.path.exists(path):
             try:
                 os.remove(path)
@@ -294,18 +274,14 @@ def api_upload_test():
                 pass
         return jsonify({"accuracy": accuracy, "loss": loss, "per_record": correct, "total": len(correct)})
     except Exception as e:
-        for p in (npz_path, path):
-            if os.path.exists(p):
-                try:
-                    os.remove(p)
-                except Exception:
-                    pass
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except Exception:
+                pass
         import traceback
         traceback.print_exc()
-        err_msg = str(e)
-        if "not a zip file" in err_msg.lower() or "zip" in err_msg.lower():
-            err_msg = "Не удалось прочитать файл. Убедитесь, что это корректный .npz с массивами test_x и test_y (файл повреждён или не тот формат)."
-        return jsonify({"error": err_msg}), 400
+        return jsonify({"error": "Не удалось прочитать .npz. Проверьте, что в файле есть массивы test_x и test_y."}), 400
 
 @app.route("/userinfo")
 @login_required
